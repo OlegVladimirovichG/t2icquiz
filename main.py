@@ -13,7 +13,7 @@ with open('quiz_data.json', 'r', encoding='utf-8') as f:
 # Инициализация бота и диспетчера
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
-
+#lol
 # Укажите свой Telegram chat_id, куда будет отправляться статистика после каждой викторины
 ADMIN_CHAT_ID = "YOUR_CHAT_ID"
 
