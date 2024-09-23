@@ -3,29 +3,54 @@ import logging
 from aiogram import types
 
 # Настройка логирования для записи только результатов
-logging.basicConfig(filename='quiz_results.log', level=logging.INFO, format='%(asctime)s - Результат: %(message)s')
+logging.basicConfig(filename='quiz_results.log', level=logging.INFO, format='%(asctime)s - %(message)s')
 
 
 class QuizManager:
-    def __init__(self, questions):
+    def __init__(self, questions, admin_chat_id):
         self.questions = questions
+        self.used_questions = []
         self.current_question = None
         self.correct_answer = None
         self.waiting_for_answer = False
         self.score = 0
         self.question_index = 0
         self.quiz_questions = []
+        self.user_sessions = set()  # Хранение уникальных пользователей
+        self.usage_count = 0  # Количество обращений
+        self.quiz_completed = 0  # Количество завершённых викторин
+        self.admin_chat_id = admin_chat_id  # ID для отправки сообщений админу
+
+    def refresh_questions(self):
+        """Перезагружает вопросы, если осталось меньше 10 вопросов"""
+        if len(self.questions) < 10:
+            # Если в списке осталось меньше 10 вопросов, восстанавливаем использованные вопросы
+            self.questions.extend(self.used_questions)
+            self.used_questions.clear()
 
     def start_new_quiz(self):
-        # Сбрасываем данные и выбираем 10 случайных вопросов для новой викторины
+        # Обновляем список вопросов, если их осталось меньше 10
+        self.refresh_questions()
+
+        # Выбираем 10 случайных уникальных вопросов для новой викторины
         self.quiz_questions = random.sample(self.questions, 10)
+
+        # Добавляем эти вопросы в список использованных
+        self.used_questions.extend(self.quiz_questions)
+
+        # Удаляем выбранные вопросы из основного списка
+        self.questions = [q for q in self.questions if q not in self.quiz_questions]
+
         self.score = 0
         self.question_index = 0
+        logging.info("Новая викторина начата")
 
     def is_waiting_for_answer(self):
         return self.waiting_for_answer
 
     async def start_quiz(self, message: types.Message, bot):
+        self.user_sessions.add(message.from_user.id)  # Добавляем пользователя в список уникальных пользователей
+        self.usage_count += 1  # Увеличиваем количество обращений
         self.start_new_quiz()
         await self.ask_next_question(message, bot)
 
@@ -61,6 +86,13 @@ class QuizManager:
             )
             await message.answer(f"Викторина завершена! Ваш результат: {self.score} из 10.", reply_markup=markup)
 
+            # Отправка результата админу
+            await bot.send_message(chat_id=self.admin_chat_id,
+                                   text=f"Пользователь {message.from_user.id} завершил викторину с результатом {self.score} из 10.")
+
+            # Увеличиваем счетчик завершённых викторин
+            self.quiz_completed += 1
+
             # Запись результата в лог-файл
             logging.info(f"{self.score} из 10")
             self.waiting_for_answer = False
@@ -78,3 +110,8 @@ class QuizManager:
         self.waiting_for_answer = False
         self.question_index += 1
         await self.ask_next_question(message, bot)
+
+    async def send_daily_report(self, bot, chat_id):
+        """Отправка ежедневного отчета в 22:00"""
+        message = f"Сегодня ботом пользовались {self.usage_count} раз, {len(self.user_sessions)} уникальных пользователей, завершено {self.quiz_completed} викторин."
+        await bot.send_message(chat_id=chat_id, text=message)
