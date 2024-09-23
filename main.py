@@ -15,7 +15,7 @@ bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
 # Укажите свой Telegram chat_id, куда будет отправляться статистика после каждой викторины
-ADMIN_CHAT_ID = "YOUR_CHAT_ID"
+ADMIN_CHAT_ID = "1222943667"
 
 # Инициализация QuizManager с набором вопросов из файла
 quiz_manager = QuizManager(quiz_data, admin_chat_id=ADMIN_CHAT_ID)
