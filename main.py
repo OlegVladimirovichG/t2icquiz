@@ -18,7 +18,7 @@ dp = Dispatcher()
 ADMIN_CHAT_ID = "YOUR_CHAT_ID"
 
 # Инициализация QuizManager с набором вопросов из файла
-quiz_manager = QuizManager(quiz_data, admin_chat_id=ADMIN_CHAT_ID)
+quiz_manager = QuizManager(quiz_data, admin_chat_id=1222943667)
 
 # Инициализация планировщика задач
 scheduler = AsyncIOScheduler()
