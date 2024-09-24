@@ -13,12 +13,12 @@ with open('quiz_data.json', 'r', encoding='utf-8') as f:
 # Инициализация бота и диспетчера
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
-
+#lol
 # Укажите свой Telegram chat_id, куда будет отправляться статистика после каждой викторины
 ADMIN_CHAT_ID = "1222943667"
 
 # Инициализация QuizManager с набором вопросов из файла
-quiz_manager = QuizManager(quiz_data, admin_chat_id=ADMIN_CHAT_ID)
+quiz_manager = QuizManager(quiz_data, admin_chat_id=1222943667)
 
 # Инициализация планировщика задач
 scheduler = AsyncIOScheduler()

@@ -90,6 +90,9 @@ class QuizManager:
             await bot.send_message(chat_id=self.admin_chat_id,
                                    text=f"Пользователь {message.from_user.id} завершил викторину с результатом {self.score} из 10.")
 
+            # Анонс функции "Начать сначала"
+            await message.answer("Вы можете начать викторину заново, нажав на кнопку 'Начать сначала'.")
+
             # Увеличиваем счетчик завершённых викторин
             self.quiz_completed += 1
 
